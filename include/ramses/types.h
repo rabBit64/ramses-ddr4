@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2016 Andrei Tatar
  * Copyright (c) 2017-2018 Vrije Universiteit Amsterdam
+ * Modifications copyright (C) 2020 <Anna Kim>
  *
  * This program is licensed under the GPL2+.
  */
