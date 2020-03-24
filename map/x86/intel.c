@@ -93,32 +93,33 @@ static physaddr_t drammap_reverse_sandy(struct DRAMAddr addr, int geom_flags)
 	return retval;
 }
 
-static struct DRAMAddr drammap_ivyhaswell(physaddr_t addr, int geom_flags)
+static struct DRAMAddr drammap_ivyhaswell(physaddr_t addr, int geom_flags) //addr
 {
-	struct DRAMAddr retval = {0,0,0,0,0,0};
+	struct DRAMAddr retval = {0,0,0,0,0,0}; //<channel, dimm, rank, bank, row, column>
 	/* Idx: 0 */
-	if (geom_flags & INTEL_DUALCHAN) {
+	if (geom_flags & INTEL_DUALCHAN) { //if dual-channel
 		retval.chan = BIT(7,addr) ^ BIT(8,addr) ^ BIT(9,addr) ^ BIT(12,addr) ^
 					  BIT(13,addr) ^ BIT(18,addr) ^ BIT(19,addr);
 		addr = POP_BIT(7,addr);
 	}
 	/* Discard index into memory word */
-	addr >>= MW_BITS;
+	addr >>= MW_BITS; //discard lower 3 bits(a0 to a2 are byte index)
 	/* Idx: 3 */
-	retval.col = addr & LS_BITMASK(COL_BITS);
-	addr >>= COL_BITS;
+	retval.col = addr & LS_BITMASK(COL_BITS); //get column 10 bits(2^0~2^10-1)
+	addr >>= COL_BITS; //discard 10 bits
 	/* Idx: 13/14 */
-	if (geom_flags & INTEL_DUALDIMM) {
-		retval.dimm = BIT(2,addr);
-		addr = POP_BIT(2,addr);
+	if (geom_flags & INTEL_DUALDIMM) { //if dual-dimm
+		retval.dimm = BIT(2,addr); //a15(1 channel, dual-dimm) or a16(dual-channel, dual-dimm)
+		addr = POP_BIT(2,addr);//pop a15 or a16
 	}
 	/* Idx: 13/14, Possible Holes: 15/16 */
-	if (geom_flags & INTEL_DUALRANK) {
-		retval.rank = BIT(2,addr) ^ BIT(6,addr);
-		addr = POP_BIT(2,addr);
+	if (geom_flags & INTEL_DUALRANK) { //if dual-rank
+		retval.rank = BIT(2,addr) ^ BIT(6,addr); //a15⊕a19(1 channel, 1 dimm) / a16⊕a20(1 channel, dual-dimm) / a16⊕a20(dual channel, 1-dimm) /a17⊕a21(dual-channel, dual-dimm)
+		addr = POP_BIT(2,addr);// pop a15/a16/a16/a17
+
 	}
 	/* Idx: 13/14, Possible Holes: 15/16, 16/17 */
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++) {  // 8 bank (BA0, BA1, BA2)
 		retval.bank |= (BIT(0,addr) ^ BIT(3,addr)) << i;
 		addr >>= 1;
 	}
