@@ -26,7 +26,19 @@ struct DRAMAddr {
 	uint16_t col;
 }; /* DRAM Addresses; this is what the memory DIMMs see on the bus + selection pins */
 
+struct DDR4Addr {
+	uint8_t chan;
+	uint8_t dimm;
+	uint8_t rank;
+	uint8_t bg; //add bank group
+	uint8_t bank;
+	uint16_t row;
+	uint16_t col;
+}
 /* Address reserved as error condition; impossible to encounter in the wild */
 #define RAMSES_BADDRAMADDR ((struct DRAMAddr){-1, -1, -1, -1, -1, -1})
+#define RAMSES_BADDDR4ADDR ((struct DDR4Addr){-1, -1, -1, -1, -1, -1, -1}) // add DDR4 error condition
+
+
 
 #endif /* types.h */
