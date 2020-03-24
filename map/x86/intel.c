@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018 Vrije Universiteit Amsterdam
+ * Modifications copyright (C) 2020 <Anna Kim>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -170,6 +171,23 @@ static physaddr_t drammap_reverse_ivyhaswell(struct DRAMAddr addr, int geom_flag
 	return retval;
 }
 
+/* skylake DDR4 */
+static struct DDR4Addr drammap_skylake(physaddr_t addr, int geom_flags {
+	struct DDR4Addr retval = {0, 0, 0, 0, 0, 0, 0}; //<channel, dimm, rank, bank group, bank, row, column>
+	
+	// dual-channel
+	retval.chan = BIT(8, addr) ^ BIT(9, addr) ^ BIT(12, addr) ^ BIT(13, addr) ^ BIT(18, addr) ^ BIT(19, addr);
+	}
+	addr >>= MW_BITS; // discard 3 bits (a0~a2: byte index)
+	retval.col = addr & LS_BITMASK(COL_BITS); // get column 10 bits
+	addr >>= COL_BITS; //discard 10 bits
+	
+	// 1 DIMM/ch
+	
+
+
+
+}
 
 static inline size_t contiguous_twiddle(long long mask, size_t base, int maxbits)
 {
